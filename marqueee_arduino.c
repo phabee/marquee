@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <SPI.h> 
 #include <stdint.h>
+#include <string.h>
 
 #define RED_DATA 1
 #define BLUE_DATA 0
 #define GREEN_DATA 2
-#define MSGSIZE 17
 
 const int CE = 10; 
 const int SCROLL_DELAY = 300;
@@ -68,29 +68,37 @@ const uint8_t letter[][8] = {
 // : (46), ; (47), ? (48), .(49), ,(50)
 
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-uint8_t message[17] = {0,17,3,20,8,13,14,26,15,17,14,26,12,8,13,8,26};
+char msgTxt[] = "DIES IST EINE LAUFSCHRIFT, DARGESTELLT IN DER BEKANNTEN C-64 SCHRIFT! ";
+uint8_t msgCode[1000] = {0};
+int msgLen;
+
+void encodeMessage(char *string, int strLen, uint8_t *codeArr);
 
 void setup() {
+  // translate string to internal character code
+  msgLen = strlen(msgTxt);
+  encodeMessage(msgTxt, msgLen, msgCode);
+  
   // put your setup code here, to run once:
   pinMode(CE, OUTPUT);                          //initialized the pin's mode.
-  SPI.begin();                                              // start spi function
+  SPI.begin();                                  // start spi function
 }
 
 void loop() {
     // loop trhough all letters
-    for (int ltr=0;ltr<MSGSIZE;ltr++) {
+    for (int ltr=0;ltr<msgLen;ltr++) {
       // scroll current letter and append following
       for (int pos=0;pos<8;pos++) {
         for (int rep=0;rep<SCROLL_DELAY;rep++) {
           // calc followup letter index
-          int nxLtr = (ltr+1)%MSGSIZE;
+          int nxLtr = (ltr+1)%msgLen;
           for (int j=0;j<8;j++) {
             if (j < pos) {
-              data[BLUE_DATA] = ~letter[message[nxLtr]][8-pos+j];
+              data[BLUE_DATA] = ~letter[msgCode[nxLtr]][8-pos+j];
               data[GREEN_DATA] = 255;
               data[RED_DATA] = 255;
             } else {
-              data[BLUE_DATA] = ~letter[message[ltr]][j-pos];
+              data[BLUE_DATA] = ~letter[msgCode[ltr]][j-pos];
               data[GREEN_DATA] = 255;
               data[RED_DATA] = 255;
             }
@@ -106,4 +114,36 @@ void loop() {
         };
       };
     };
+}
+
+void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
+  for (uint8_t i=0;i<strLen;i++) {
+    if ((int) string[i] >=65 && (int) string[i] <= 90) {
+        codeArr[i] = (uint8_t) (string[i] - 65);
+    } else {
+      switch((int) string[i]) {
+        case 33: codeArr[i] = (uint8_t)27; break;
+        case 34: codeArr[i] = (uint8_t)28; break;
+        case 35: codeArr[i] = (uint8_t)29; break;
+        case 36: codeArr[i] = (uint8_t)30; break;
+        case 37: codeArr[i] = (uint8_t)31; break;
+        case 38: codeArr[i] = (uint8_t)32; break;
+        case 39: codeArr[i] = (uint8_t)33; break;
+        case 40: codeArr[i] = (uint8_t)34; break;
+        case 41: codeArr[i] = (uint8_t)35; break;
+        case 48: codeArr[i] = (uint8_t)36; break;
+        case 49: codeArr[i] = (uint8_t)37; break;
+        case 50: codeArr[i] = (uint8_t)38; break;
+        case 51: codeArr[i] = (uint8_t)39; break;
+        case 52: codeArr[i] = (uint8_t)40; break;
+        case 53: codeArr[i] = (uint8_t)41; break;
+        case 54: codeArr[i] = (uint8_t)42; break;
+        case 55: codeArr[i] = (uint8_t)43; break;
+        case 56: codeArr[i] = (uint8_t)44; break;
+        case 57: codeArr[i] = (uint8_t)45; break;
+        default: codeArr[i] = (uint8_t)26;
+      }
+    }
+  }
+  return codeArr;
 }
