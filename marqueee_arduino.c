@@ -2,12 +2,13 @@
 #include <SPI.h> 
 #include <stdint.h>
 
-#define RED_DATA 0
-#define BLUE_DATA 1
+#define RED_DATA 1
+#define BLUE_DATA 0
 #define GREEN_DATA 2
 #define MSGSIZE 17
+
 const int CE = 10; 
-const int SCROLL_DELAY = 400;
+const int SCROLL_DELAY = 300;
 const int REFRESH_DELAY = 0;
 const uint8_t letter[][8] = {
 {0, 124, 126, 11, 11, 126, 124, 0 },
@@ -62,28 +63,17 @@ const uint8_t letter[][8] = {
 {0, 0, 0, 96, 96, 0, 0, 0},
 {0, 0, 0, 96, 224, 128, 0, 0}
 };
-
-
 // A-Z, space, !, ", #, $, %, & (32), ', ( (34), ) (35),
 // 0 (36), 1, 2, ..., 9 (45)
 // : (46), ; (47), ? (48), .(49), ,(50)
 
-
-const uint8_t zero[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-const char *text = "RASPBERRY PI 3B+ ";
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-uint8_t *message;
-
-uint8_t * encodeMessage();
+uint8_t message[17] = {0,17,3,20,8,13,14,26,15,17,14,26,12,8,13,8,26};
 
 void setup() {
   // put your setup code here, to run once:
   pinMode(CE, OUTPUT);                          //initialized the pin's mode.
   SPI.begin();                                              // start spi function
-  matrixoff();
-  // put your main code here, to run repeatedly:
-  *message = encodeMessage();
-
 }
 
 void loop() {
@@ -106,9 +96,9 @@ void loop() {
             }
             data[3] = 0x01 << j ;
             digitalWrite(CE, LOW);
-            SPI.transfer(data[BLUE_DATA]);
-            SPI.transfer(data[GREEN_DATA]);
-            SPI.transfer(data[RED_DATA]);
+            SPI.transfer(data[GREEN_DATA]); // pos 1: red
+            SPI.transfer(data[BLUE_DATA]); // pos 2: blue
+            SPI.transfer(data[RED_DATA]); // pos 3: green
             SPI.transfer(data[3]);
             digitalWrite(CE, HIGH);              // send data to SPI channel 0, and the length of the data
             delay(REFRESH_DELAY);
@@ -116,56 +106,4 @@ void loop() {
         };
       };
     };
-}
-void matrixoff()
-{
-  int j;
-  int x = 2;
-  static uint8_t heart[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};        // you can see, all of the led will go off here.
-  for ( j = 0; j < 8; j++)
-  {
-    data[0] = ~heart[j];
-    data[2] = 0xFF;
-    data[1] = 0xFF;
-    data[3] = 0x01 << j ;
-    digitalWrite(CE, LOW);
-    SPI.transfer(data[0]);
-    SPI.transfer(data[2]);
-    SPI.transfer(data[1]);
-    SPI.transfer(data[3]);
-    digitalWrite(CE, HIGH);
-    delay(x);
-  }
-};
-uint8_t * encodeMessage() {
-  static uint8_t retval[MSGSIZE];
-  for (int i=0;i<MSGSIZE;i++) {
-    if ((int) text[i] >=65 && (int)  text[i] <= 90) {
-        retval[i] = (uint8_t) (text[i] - 65);
-    } else {
-      switch((int) text[i]) {
-        case 33: retval[i] = (uint8_t)27; break;
-        case 34: retval[i] = (uint8_t)28; break;
-        case 35: retval[i] = (uint8_t)29; break;
-        case 36: retval[i] = (uint8_t)30; break;
-        case 37: retval[i] = (uint8_t)31; break;
-        case 38: retval[i] = (uint8_t)32; break;
-        case 39: retval[i] = (uint8_t)33; break;
-        case 40: retval[i] = (uint8_t)34; break;
-        case 41: retval[i] = (uint8_t)35; break;
-        case 48: retval[i] = (uint8_t)36; break;
-        case 49: retval[i] = (uint8_t)37; break;
-        case 50: retval[i] = (uint8_t)38; break;
-        case 51: retval[i] = (uint8_t)39; break;
-        case 52: retval[i] = (uint8_t)40; break;
-        case 53: retval[i] = (uint8_t)41; break;
-        case 54: retval[i] = (uint8_t)42; break;
-        case 55: retval[i] = (uint8_t)43; break;
-        case 56: retval[i] = (uint8_t)44; break;
-        case 57: retval[i] = (uint8_t)45; break;
-        default: retval[i] = (uint8_t)26;
-      }
-    }
-  }
-  return retval;
 }
