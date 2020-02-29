@@ -61,14 +61,27 @@ const uint8_t letter[][8] = {
 {0, 0, 100, 228, 128, 0, 0, 0},
 {0, 6, 15, 89, 81, 3, 2, 0},
 {0, 0, 0, 96, 96, 0, 0, 0},
-{0, 0, 0, 96, 224, 128, 0, 0}
+{0, 0, 0, 96, 224, 128, 0, 0},
+{0, 8, 8, 62,62, 8, 8, 0},
+{8, 42, 62, 28, 28, 62, 42,8},
+{0, 8, 8, 8, 8, 8, 8, 0},
+{2, 6, 12, 24, 48, 96, 64,0},
+{0, 120, 124, 84, 84, 116, 32, 0},
+{0, 48, 120, 72, 72, 126,126, 0},
+{0, 0, 68, 68, 68, 124, 56, 0}, 
+{0, 126, 126, 72, 72, 120, 48, 0},
+{0, 24, 28, 84, 84, 124, 56, 0}, 
+{0, 10, 10, 126, 124, 8, 0, 0},
+{0, 124, 252, 164, 164, 188, 152, 0}
 };
 // A-Z, space, !, ", #, $, %, & (32), ', ( (34), ) (35),
 // 0 (36), 1, 2, ..., 9 (45)
 // : (46), ; (47), ? (48), .(49), ,(50)
+// + (51), * (52), -, (53), / (54), 
+// a (55), b, c, d, e, 
 
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-char msgTxt[] = "DIES IST EINE LAUFSCHRIFT, DARGESTELLT IN DER BEKANNTEN C-64 SCHRIFT! ";
+char msgTxt[] = "dEeFfZgG";
 uint8_t msgCode[1000] = {0};
 int msgLen;
 
@@ -146,6 +159,17 @@ void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
         case 63: codeArr[i] = (uint8_t)48; break;
         case 46: codeArr[i] = (uint8_t)49; break;
         case 44: codeArr[i] = (uint8_t)50; break;
+        case 43: codeArr[i] = (uint8_t)51; break;
+        case 42: codeArr[i] = (uint8_t)52; break;
+        case 45: codeArr[i] = (uint8_t)53; break; // -
+        case 47: codeArr[i] = (uint8_t)54; break; // /
+        case 97: codeArr[i] = (uint8_t)55; break; // a
+        case 98: codeArr[i] = (uint8_t)56; break; // b
+        case 99: codeArr[i] = (uint8_t)57; break; // c
+        case 100: codeArr[i] = (uint8_t)58; break; // d
+        case 101: codeArr[i] = (uint8_t)59; break; // e
+        case 102: codeArr[i] = (uint8_t)60; break; // f
+        case 103: codeArr[i] = (uint8_t)61; break; // g
         default: codeArr[i] = (uint8_t)26;
       }
     }
