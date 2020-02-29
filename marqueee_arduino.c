@@ -141,6 +141,11 @@ void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
         case 55: codeArr[i] = (uint8_t)43; break;
         case 56: codeArr[i] = (uint8_t)44; break;
         case 57: codeArr[i] = (uint8_t)45; break;
+        case 58: codeArr[i] = (uint8_t)46; break;
+        case 59: codeArr[i] = (uint8_t)47; break;
+        case 63: codeArr[i] = (uint8_t)48; break;
+        case 46: codeArr[i] = (uint8_t)49; break;
+        case 44: codeArr[i] = (uint8_t)50; break;
         default: codeArr[i] = (uint8_t)26;
       }
     }
