@@ -3,21 +3,21 @@
 #include <stdint.h>
 #include <string.h>
 
-#define RED_DATA 1
-#define BLUE_DATA 0
-#define GREEN_DATA 2
+#define RED_DATA 0
+#define GREEN_DATA 1
+#define BLUE_DATA 2
 
 const int CE = 10; 
 const int SCROLL_DELAY = 300;
 const int REFRESH_DELAY = 0;
 const uint8_t letter[][8] = {
-{0, 124, 126, 11, 11, 126, 124, 0 },
-{0, 54, 127, 73, 73, 127, 127, 0 },
-{0, 34, 99, 65, 65, 127, 62, 0 },
-{0, 28, 62, 99, 65, 127, 127, 0},
-{0, 65, 65, 73, 73, 127, 127, 0},
-{0, 1, 1, 9, 9, 127, 127, 0},
-{0, 58, 123, 73, 65, 127, 62, 0},
+{0, 124, 126, 11, 11, 126, 124, 0 }, // A
+{0, 54, 127, 73, 73, 127, 127, 0 }, // B
+{0, 34, 99, 65, 65, 127, 62, 0 }, // C
+{0, 28, 62, 99, 65, 127, 127, 0}, // D
+{0, 65, 65, 73, 73, 127, 127, 0}, // E
+{0, 1, 1, 9, 9, 127, 127, 0}, // F
+{0, 58, 123, 73, 65, 127, 62, 0}, // G
 {0, 127, 127, 8, 8, 127, 127, 0},
 {0, 0, 65, 127, 127, 65, 0, 0},
 {0, 1, 63, 127, 65, 96, 32, 0},
@@ -72,16 +72,35 @@ const uint8_t letter[][8] = {
 {0, 126, 126, 72, 72, 120, 48, 0},
 {0, 24, 28, 84, 84, 124, 56, 0}, 
 {0, 10, 10, 126, 124, 8, 0, 0},
-{0, 124, 252, 164, 164, 188, 152, 0}
+{0, 124, 252, 164, 164, 188, 152, 0},
+{0, 112, 120, 8, 8, 126, 126, 0}, 
+{0, 0, 64, 122, 122, 72, 0, 0},
+{0, 122, 250, 128, 128, 128, 0, 0}, 
+{0, 64, 104, 56, 16, 126, 126, 0},
+{0, 0, 64, 126, 126, 66, 0, 0},
+{120, 124, 28, 56, 24, 124, 124, 0}, //m
+{0, 120, 124, 4, 4, 124, 124, 0},
+{0, 56, 124, 68, 68, 124, 56, 0}, // o
+{0, 24, 60, 36, 36, 252, 252, 0}, //p
+{0, 252, 252, 36, 36, 60, 24, 0}, // q
+{0, 8, 12, 4, 4, 124, 124, 0}, // r
+{0, 36, 116, 84, 84, 92, 72, 0}, // s
+{0, 68, 68, 126, 62, 4, 4, 0}, 
+{0, 124, 124, 64, 64, 124, 60, 0},
+{0, 28, 60, 96, 96, 60, 28, 0}, // v
+{28, 124, 96, 48, 96, 124, 28, 0}, // w
+{0, 68, 108, 56, 56, 108, 68, 0}, // x
+{0, 60, 124, 224, 160, 188, 156, 0}, // y
+{0, 68, 76, 92, 116, 100, 68, 0}
 };
 // A-Z, space, !, ", #, $, %, & (32), ', ( (34), ) (35),
 // 0 (36), 1, 2, ..., 9 (45)
 // : (46), ; (47), ? (48), .(49), ,(50)
 // + (51), * (52), -, (53), / (54), 
-// a (55), b, c, d, e, 
+// a (55), b, c, d, e, herz
 
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-char msgTxt[] = "dEeFfZgG";
+char msgTxt[] = "Ich heisse Noe. Und du? ";
 uint8_t msgCode[1000] = {0};
 int msgLen;
 
@@ -102,24 +121,34 @@ void loop() {
     for (int ltr=0;ltr<msgLen;ltr++) {
       // scroll current letter and append following
       for (int pos=0;pos<8;pos++) {
+        // {int pos = 0;
         for (int rep=0;rep<SCROLL_DELAY;rep++) {
           // calc followup letter index
           int nxLtr = (ltr+1)%msgLen;
           for (int j=0;j<8;j++) {
+            int col1, col2, col3;
             if (j < pos) {
-              data[BLUE_DATA] = ~letter[msgCode[nxLtr]][8-pos+j];
-              data[GREEN_DATA] = 255;
-              data[RED_DATA] = 255;
+              // paint letter entering the display
+              col1 = nxLtr % 3;
+              col2 = (nxLtr + 1) % 3;
+              col3 = (nxLtr + 2) % 3;
+              data[col1] = ~letter[msgCode[nxLtr]][8-pos+j];
+              data[col2] = 255;
+              data[col3] = ~letter[msgCode[nxLtr]][8-pos+j];
             } else {
-              data[BLUE_DATA] = ~letter[msgCode[ltr]][j-pos];
-              data[GREEN_DATA] = 255;
-              data[RED_DATA] = 255;
+              // paint letter leaving the display
+              col1 = ltr % 3;
+              col2 = (ltr + 1) % 3;
+              col3 = (ltr + 2) % 3;
+              data[col1] = ~letter[msgCode[ltr]][j-pos];
+              data[col2] = 255;
+              data[col3] = ~letter[msgCode[ltr]][j-pos];
             }
             data[3] = 0x01 << j ;
             digitalWrite(CE, LOW);
-            SPI.transfer(data[GREEN_DATA]); // pos 1: red
+            SPI.transfer(data[RED_DATA]); // pos 1: red
             SPI.transfer(data[BLUE_DATA]); // pos 2: blue
-            SPI.transfer(data[RED_DATA]); // pos 3: green
+            SPI.transfer(data[GREEN_DATA]); // pos 3: green
             SPI.transfer(data[3]);
             digitalWrite(CE, HIGH);              // send data to SPI channel 0, and the length of the data
             delay(REFRESH_DELAY);
@@ -133,6 +162,8 @@ void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
   for (uint8_t i=0;i<strLen;i++) {
     if ((int) string[i] >=65 && (int) string[i] <= 90) {
         codeArr[i] = (uint8_t) (string[i] - 65);
+    } else if ((int) string[i] >=97 && (int) string[i] <= 122) {
+        codeArr[i] = (uint8_t) (string[i] - 42);
     } else {
       switch((int) string[i]) {
         case 33: codeArr[i] = (uint8_t)27; break;
@@ -162,14 +193,7 @@ void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
         case 43: codeArr[i] = (uint8_t)51; break;
         case 42: codeArr[i] = (uint8_t)52; break;
         case 45: codeArr[i] = (uint8_t)53; break; // -
-        case 47: codeArr[i] = (uint8_t)54; break; // /
-        case 97: codeArr[i] = (uint8_t)55; break; // a
-        case 98: codeArr[i] = (uint8_t)56; break; // b
-        case 99: codeArr[i] = (uint8_t)57; break; // c
-        case 100: codeArr[i] = (uint8_t)58; break; // d
-        case 101: codeArr[i] = (uint8_t)59; break; // e
-        case 102: codeArr[i] = (uint8_t)60; break; // f
-        case 103: codeArr[i] = (uint8_t)61; break; // g
+        case 47: codeArr[i] = (uint8_t)54; break; // /        
         default: codeArr[i] = (uint8_t)26;
       }
     }
