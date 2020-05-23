@@ -100,7 +100,7 @@ const uint8_t letter[][8] = {
 // a (55), b, c, d, e, herz
 
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-char msgTxt[] = "Ich heisse Noe. Und du? ";
+char msgTxt[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklnmopqrstuvwxyz !+-?&%*= 1234567890 ";
 uint8_t msgCode[1000] = {0};
 int msgLen;
 
@@ -126,24 +126,20 @@ void loop() {
           // calc followup letter index
           int nxLtr = (ltr+1)%msgLen;
           for (int j=0;j<8;j++) {
-            int col1, col2, col3;
+            uint8_t col;
+            uint8_t bitmap;
             if (j < pos) {
               // paint letter entering the display
-              col1 = nxLtr % 3;
-              col2 = (nxLtr + 1) % 3;
-              col3 = (nxLtr + 2) % 3;
-              data[col1] = ~letter[msgCode[nxLtr]][8-pos+j];
-              data[col2] = 255;
-              data[col3] = ~letter[msgCode[nxLtr]][8-pos+j];
+              col = nxLtr % 7 + 1;
+              bitmap = ~letter[msgCode[nxLtr]][8-pos+j];
             } else {
               // paint letter leaving the display
-              col1 = ltr % 3;
-              col2 = (ltr + 1) % 3;
-              col3 = (ltr + 2) % 3;
-              data[col1] = ~letter[msgCode[ltr]][j-pos];
-              data[col2] = 255;
-              data[col3] = ~letter[msgCode[ltr]][j-pos];
+              col = ltr % 7 + 1;
+              bitmap = ~letter[msgCode[ltr]][j-pos];
             }
+            data[RED_DATA] = (col & (1<<0) ? bitmap : 255);
+            data[BLUE_DATA] = (col & (1<<1) ? bitmap : 255);
+            data[GREEN_DATA] = (col & (1<<2) ? bitmap : 255);
             data[3] = 0x01 << j ;
             digitalWrite(CE, LOW);
             SPI.transfer(data[RED_DATA]); // pos 1: red
@@ -192,8 +188,8 @@ void encodeMessage(char *string, int strLen, uint8_t *codeArr) {
         case 44: codeArr[i] = (uint8_t)50; break;
         case 43: codeArr[i] = (uint8_t)51; break;
         case 42: codeArr[i] = (uint8_t)52; break;
-        case 45: codeArr[i] = (uint8_t)53; break; // -
-        case 47: codeArr[i] = (uint8_t)54; break; // /        
+        case 45: codeArr[i] = (uint8_t)53; break;
+        case 47: codeArr[i] = (uint8_t)54; break;
         default: codeArr[i] = (uint8_t)26;
       }
     }
