@@ -23,7 +23,7 @@ const uint8_t letter[][8] = {
 {0, 1, 63, 127, 65, 96, 32, 0},
 {0, 65, 99, 54, 28, 127, 127, 0},
 {0, 64, 64, 64, 64, 127, 127, 0},
-{0, 127, 127, 6, 12, 6, 127, 127},
+{127, 127, 6, 12, 6, 127, 127,0},
 {0, 127, 127, 28, 14, 127, 127, 0},
 {0, 62, 127, 65, 65, 127, 62, 0},
 {0, 6, 15, 9, 9, 127, 127, 0},
@@ -33,7 +33,7 @@ const uint8_t letter[][8] = {
 {0, 1, 1, 127, 127, 1, 1, 0},
 {0, 63, 127, 64, 64, 127, 63, 0},
 {0, 31, 63, 96, 96, 63, 31, 0},
-{0, 127, 127, 48, 24, 48, 127, 127},
+{127, 127, 48, 24, 48, 127, 127, 0},
 {0, 99, 119, 28, 28, 119, 99, 0},
 {0, 7, 15, 120, 120, 15, 7, 0},
 {0, 67, 71, 77, 89, 113, 97, 0},
@@ -100,7 +100,7 @@ const uint8_t letter[][8] = {
 // a (55), b, c, d, e, herz
 
 static uint8_t data[8] = {0x0,0x0,0x0,0x0, 0x0, 0x0, 0x0, 0x0};
-char msgTxt[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklnmopqrstuvwxyz !+-?&%*= 1234567890 ";
+char msgTxt[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz !+-?&%*= 1234567890 ";
 uint8_t msgCode[1000] = {0};
 int msgLen;
 
@@ -112,17 +112,17 @@ void setup() {
   encodeMessage(msgTxt, msgLen, msgCode);
   
   // put your setup code here, to run once:
-  pinMode(CE, OUTPUT);                          //initialized the pin's mode.
+  pinMode(CE, OUTPUT);                          // initialize the pin's mode.
   SPI.begin();                                  // start spi function
 }
 
 void loop() {
     // loop trhough all letters
-    for (int ltr=0;ltr<msgLen;ltr++) {
+    for (int ltr=0; ltr < msgLen; ltr++) {
       // scroll current letter and append following
-      for (int pos=0;pos<8;pos++) {
+      for (int pos=0; pos < 8; pos++) {
         // {int pos = 0;
-        for (int rep=0;rep<SCROLL_DELAY;rep++) {
+        for (int rep = 0; rep < SCROLL_DELAY; rep++) {
           // calc followup letter index
           int nxLtr = (ltr+1)%msgLen;
           for (int j=0;j<8;j++) {
